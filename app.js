@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 
 
 const app = express();
-var newItem = "";
+var newItems = [];
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.get("/", function(req, res) {
@@ -17,11 +17,12 @@ app.get("/", function(req, res) {
   var day=today.toLocaleDateString("en-US",options);
 
   res.render("list", {
-    lol: day,newListItem:newItem
+    lol: day,newListItems:newItems
   });
 });
 app.post("/",function(req,res){
-  newItem= req.body.newItem;
+  var newItem= req.body.newItem;
+  newItems.push(newItem);
   //console.log(newItem);
   res.redirect("/");
 });
