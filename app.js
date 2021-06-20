@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 
 const app = express();
 let newItems = [];
+let workItems = [];
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
@@ -18,15 +19,36 @@ app.get("/", function(req, res) {
   let day=today.toLocaleDateString("en-US",options);
 
   res.render("list", {
-    today: day,newListItems:newItems
+    listTitle: day,newListItems:newItems
   });
 });
 app.post("/",function(req,res){
   let newItem= req.body.newItem;
-  newItems.push(newItem);
-  //console.log(newItem);
-  res.redirect("/");
+  if(req.body.list === "Work List")
+  {
+    workItems.push(newItem);
+    res.redirect("/work");
+  }
+  else{
+    newItems.push(newItem);
+    res.redirect("/");
+  }
+  //console.log(req.body);
 });
+app.get("/work",function(req,res){
+  res.render("list",{
+    listTitle:"Work List",
+    newListItems:workItems
+  });
+});
+app.post("/work",function(req,res){
+  let workItem=req.body.newItem;
+  workItems.push(workItem);
+  res.redirect("/work");
+});
+app.get("/about",function(req,res){
+  res.render("about");
+})
 
 
 
