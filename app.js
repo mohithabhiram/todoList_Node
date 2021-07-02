@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
 mongoose.connect("mongodb://localhost:27017/todolistDB",{useNewUrlParser:true, useUnifiedTopology: true});
+mongoose.set('useFindAndModify', false);
 //Schema Creation
 const newItemsSchema = {
   name: String
@@ -43,17 +44,25 @@ app.get("/", function(req, res) {
   });
 });
 app.post("/",function(req,res){
-  let newItem= req.body.newItem;
-  if(req.body.list === "Work List")
-  {
-    workItems.push(newItem);
-    res.redirect("/work");
-  }
-  else{
-    newItems.push(newItem);
-    res.redirect("/");
-  }
+  const itemName = req.body.newItem;
+  const item = new Item({
+    name: itemName
+  });
+  item.save();
+  res.redirect("/");
+
   //console.log(req.body);
+});
+app.post("/delete",function(req,res){
+  const checkedId=req.body.checkbox;
+  Item.findByIdAndRemove(checkedId,function(err){
+    if(err){
+      console.log(err);
+    }else{
+      console.log("Deleted Selected Item");
+    }
+    res.redirect("/");
+  });
 });
 app.get("/work",function(req,res){
   res.render("list",{
