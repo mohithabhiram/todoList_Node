@@ -21,6 +21,11 @@ const item3 = new Item({
   name: "<-- Hit this to delete an item."
 });
 const defaultItems = [item1,item2,item3];
+const listSchema = {
+  name : String,
+  items : [newItemsSchema]
+};
+const List = mongoose.model("List",listSchema);
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
@@ -43,14 +48,46 @@ app.get("/", function(req, res) {
     }
   });
 });
+app.get("/:customListName",function(req,res){
+  const customListName=req.params.customListName;
+  List.findOne({name:customListName},function(err,foundList){
+    if(!err){
+      if(!foundList){
+        //create new list
+        const list=new List({
+          name: customListName,
+          items: defaultItems
+        });
+        list.save();
+        res.redirect("/"+customListName);
+      }else{
+        //show existinng list
+        res.render("list", {
+          listTitle:foundList.name,newListItems: foundList.items
+        });
+      }
+    }
+  });
+
+
+});
 app.post("/",function(req,res){
   const itemName = req.body.newItem;
+  const listName = req.body.list;//Here list is the name for button + in list.ejs
   const item = new Item({
     name: itemName
   });
-  item.save();
-  res.redirect("/");
 
+  if(listName === "Today"){
+    item.save();
+    res.redirect("/");
+  }else{
+    List.findOne({name:listName},function(err,foundList){
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/"+listName);
+    })
+  }
   //console.log(req.body);
 });
 app.post("/delete",function(req,res){
@@ -70,11 +107,7 @@ app.get("/work",function(req,res){
     newListItems:workItems
   });
 });
-app.post("/work",function(req,res){
-  let workItem=req.body.newItem;
-  workItems.push(workItem);
-  res.redirect("/work");
-});
+
 app.get("/about",function(req,res){
   res.render("about");
 })
