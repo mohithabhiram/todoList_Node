@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 const app = express();
-mongoose.connect("mongodb://localhost:27017/todolistDB",{useNewUrlParser:true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://mohithabhiram:Abhiram28@cluster0.s3x7w.mongodb.net/todolistDB",{useNewUrlParser:true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 //Schema Creation
 const newItemsSchema = {
